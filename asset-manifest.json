@@ -1,8 +1,8 @@
 {
   "files": {
     "main.css": "/alz-predictor-prefetch-example/static/css/main.b85998c0.chunk.css",
-    "main.js": "/alz-predictor-prefetch-example/static/js/main.a5783d5d.chunk.js",
-    "main.js.map": "/alz-predictor-prefetch-example/static/js/main.a5783d5d.chunk.js.map",
+    "main.js": "/alz-predictor-prefetch-example/static/js/main.25f16a92.chunk.js",
+    "main.js.map": "/alz-predictor-prefetch-example/static/js/main.25f16a92.chunk.js.map",
     "runtime-main.js": "/alz-predictor-prefetch-example/static/js/runtime-main.82ed6108.js",
     "runtime-main.js.map": "/alz-predictor-prefetch-example/static/js/runtime-main.82ed6108.js.map",
     "static/css/2.4c97ca4f.chunk.css": "/alz-predictor-prefetch-example/static/css/2.4c97ca4f.chunk.css",
@@ -20,6 +20,6 @@
     "static/css/2.4c97ca4f.chunk.css",
     "static/js/2.6ce62fcd.chunk.js",
     "static/css/main.b85998c0.chunk.css",
-    "static/js/main.a5783d5d.chunk.js"
+    "static/js/main.25f16a92.chunk.js"
   ]
 }
