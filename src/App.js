@@ -5,82 +5,104 @@ import {
   Route,
 } from "react-router-dom";
 import Alert from 'react-bootstrap/Alert'
-import Jumbotron from 'react-bootstrap/Jumbotron'
-
 import 'bootstrap/dist/css/bootstrap.min.css';
 import Container from 'react-bootstrap/Container';
 
 
 import Navbar from './Navbar'
-import Module from './Module'
-import { getData } from './api'
-import { MODULES } from './constants'
-import predictor from './predictor'
+import Home from './Home'
+import Posts from "./Posts";
+import Comments from "./Comments";
+import Todos from "./Todos";
+import Users from "./Users";
+import { getPosts, getUsers, getComments, getTodos } from './api'
+import { PROBABILITY_THRESHOLD } from './constants'
+import predictor, { LINKS } from './predictor'
 
 
-const { HEALTH, PERFORMANCE, USERS, LEADS } = MODULES
-const PROBABILITY_THRESHOLD = 0.7
+const fetchAndSet = (getData, setData) => async () => {
+  const data = await getData()
+  setData(data)
+}
 
 function App() {
-  const [data, setData] = useState({})
+  const [posts, setPosts] = useState([])
+  const [users, setUsers] = useState([])
+  const [comments, setComments] = useState([])
+  const [todos, setTodos] = useState([])
   const [alert, setAlert] = useState()
 
+  const fetchPosts = fetchAndSet(getPosts, setPosts)
+  const fetchUsers = fetchAndSet(getUsers, setUsers)
+  const fetchComments = fetchAndSet(getComments, setComments)
+  const fetchTodos = fetchAndSet(getTodos, setTodos)
 
-  async function fetchData(module) {
-    const d = await getData()
-    setData(prevData => ({ ...prevData, [module]: d }))
-    setAlert()
+  function showAlert(message) {
+    setAlert(message)
+    setTimeout(() => setAlert(), 4000)
   }
 
-  useEffect(() => {
-    const { module, probability } = predictor.get()
-    if (module) {
-      if (probability > PROBABILITY_THRESHOLD) {
-        fetchData(module)
-        setAlert(`Fetching ${module} from prediction, with probability: ${probability.toFixed(2)}`)
-      } else {
-        setAlert(`Prediction: ${module}: ${probability.toFixed(2)}`)
-      }
+  function predict() {
+    const { link, probability } = predictor.get()
+    if (!link) {
+      showAlert('No training data!, please click on any link')
+      return
     }
-  }, [])
+
+    if (probability < PROBABILITY_THRESHOLD) {
+      showAlert(` Prediction is *${link}* with probability < ${PROBABILITY_THRESHOLD},  more training is needed`)
+      return
+    }
+
+    switch (link) {
+      case LINKS.COMMENTS:
+        fetchComments()
+        break
+      case LINKS.POSTS:
+        fetchPosts()
+        break
+      case LINKS.USERS:
+        fetchUsers()
+        break
+      case LINKS.TODOS:
+        fetchTodos()
+        break
+      default:
+        break
+    }
+    showAlert(`Prefetching *${link}* with probability: ${probability.toFixed(2)}`)
+  }
+
+  useEffect(predict, [])
 
   return (
     <Router>
-      <div>
-        <Navbar />
-        <Container fluid>
-          {alert && (
-            <Alert variant='primary'>
-              {alert}
-            </Alert>
-          )}
-          <Switch>
-            <Route path="/performance">
-              <Module data={data[PERFORMANCE]} onFetch={fetchData} title={PERFORMANCE} />
-            </Route>
-            <Route path="/users">
-              <Module data={data[USERS]} onFetch={fetchData} title={USERS} />
-            </Route>
-            <Route path="/health">
-              <Module data={data[HEALTH]} onFetch={fetchData} title={HEALTH} />
-            </Route>
-            <Route path="/leads">
-              <Module data={data[LEADS]} onFetch={fetchData} title={LEADS} />
-            </Route>
-            <Route path="/">
-              <Jumbotron>
-                <h1>Home</h1>
-                <p>Click on any navbar link to start training the model.</p>
-                <p>Reload the page to get the prediction.</p>
-                <p>
-                  The model will try to predict next user action.<br/>
-                  If the the prediction is greater than {PROBABILITY_THRESHOLD}, then the app will prefetch needed data.
-                </p>
-              </Jumbotron>
-            </Route>
-          </Switch>
-        </Container>
-      </div>
+      <Navbar onPredict={predict} />
+      <Container fluid>
+        {alert && (
+          <Alert variant='primary'>
+            {alert}
+          </Alert>
+        )}
+        <Switch>
+          <Route path="/posts">
+            <Posts posts={posts} onFetch={fetchPosts} />
+          </Route>
+          <Route path="/comments">
+            <Comments comments={comments} onFetch={fetchComments} />
+          </Route>
+          <Route path="/todos">
+            <Todos todos={todos} onFetch={fetchTodos} />
+          </Route>
+          <Route path="/users">
+            <Users users={users} onFetch={fetchUsers} />
+          </Route>
+          <Route path="/">
+            <Home />
+          </Route>
+        </Switch>
+      </Container>
+
     </Router>
   );
 }

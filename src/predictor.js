@@ -1,16 +1,23 @@
 import ALZ from 'alz-predictor'
 
-import { MODULES } from './constants'
+
+export const LINKS = {
+  USERS: 'users',
+  POSTS: 'posts',
+  TODOS: 'todos',
+  COMMENTS: 'comments',
+  HOME: 'home',
+}
 
 
 export default (function predictor() {
   const STORAGE_KEY = 'alz-predictor'
-  const PREDICT_MODULE_MAP = {
-    [MODULES.PERFORMANCE]: 'p',
-    [MODULES.HEALTH]: 'h',
-    [MODULES.USERS]: 'u',
-    [MODULES.LEADS]: 'l',
-    [MODULES.HOME]: 'o',
+  const PREDICT_LINK_MAP = {
+    [LINKS.USERS]: 'u',
+    [LINKS.POSTS]: 'p',
+    [LINKS.TODOS]: 't',
+    [LINKS.COMMENTS]: 'c',
+    [LINKS.HOME]: 'h',
   }
 
   function getByValue(object, searchValue) {
@@ -32,8 +39,8 @@ export default (function predictor() {
     localStorage.setItem(STORAGE_KEY, JSON.stringify(predictor))
   }
 
-  function addPrediction(module) {
-    predictor.add(PREDICT_MODULE_MAP[module])
+  function addPrediction(link) {
+    predictor.add(PREDICT_LINK_MAP[link])
     // todo: debounce saving
     saveToStorage()
   }
@@ -43,10 +50,10 @@ export default (function predictor() {
     const sortedPredictions = Object.keys(predictions).sort((a, b) => predictions[b] - predictions[a])
 
     const probability = predictions[sortedPredictions[0]]
-    const module = getByValue(PREDICT_MODULE_MAP, sortedPredictions[0])
+    const link = getByValue(PREDICT_LINK_MAP, sortedPredictions[0])
 
     return ({
-      module,
+      link,
       probability,
     })
   }
